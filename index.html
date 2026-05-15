@@ -657,14 +657,12 @@ function applyInline(text) {
         if (message.startsWith('data: ')) {
             const text = message.slice(6).replace(/\\n/g, '\n');
             if (text.startsWith('[STATUS]')) {
-              statusSpinner.classList.add('visible');
-              statusLine.textContent = text.replace('[STATUS] ', '');
+              statusLine.innerHTML = '<span class="status-spinner visible" id="status-spinner"></span>' + text.replace('[STATUS] ', '');
             } else if (text.startsWith('[ERROR]')) {
                 showError(text.replace('[ERROR] ', ''));
                 break;
               } else {
                   statusLine.textContent = '';
-                  statusSpinner.classList.remove('visible');
                   fullText += text;
                 outputBody.innerHTML = renderMarkdown(fullText);
             }
