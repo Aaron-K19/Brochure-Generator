@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BriefCraft — AI Brochure Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #07080f;
+    --surface: rgba(255,255,255,0.04);
+    --surface-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border-active: rgba(139,92,246,0.6);
+    --text-primary: #f0effe;
+    --text-secondary: rgba(240,239,254,0.55);
+    --text-muted: rgba(240,239,254,0.3);
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --accent-violet: #a78bfa;
+    --glow-blue: rgba(59,130,246,0.15);
+    --glow-purple: rgba(139,92,246,0.15);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-pill: 999px;
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 15% 50%, rgba(29,53,130,0.28) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 70% at 85% 40%, rgba(109,40,217,0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 90%, rgba(139,92,246,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.1;
+   /* letter-spacing: -0.03em; */
+    background: linear-gradient(120deg, #e0e7ff 0%, #a78bfa 45%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 620px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: fadeUp 0.7s 0.15s ease both;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .audience-toggle {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 1.75rem;
+  }
+
+  .audience-btn {
+    position: relative;
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .audience-btn .btn-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .audience-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .audience-btn.active {
+    background: rgba(139,92,246,0.12);
+    border-color: var(--border-active);
+    color: var(--accent-violet);
+    box-shadow: 0 0 0 1px rgba(139,92,246,0.2) inset;
+  }
+
+  .audience-btn.active .btn-icon {
+    filter: drop-shadow(0 0 6px rgba(139,92,246,0.5));
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.75rem 0;
+  }
+
+  .field {
+    margin-bottom: 1rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .field input:focus {
+    border-color: rgba(139,92,246,0.5);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.08);
+  }
+
+  .generate-btn {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.9rem 1.5rem;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
+  }
+
+  .generate-btn:hover { opacity: 0.92; }
+  .generate-btn:active { transform: scale(0.99); }
+  .generate-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .generating .spinner { display: block; }
+  .generating .btn-label::after { content: '...'; }
+
+  .rate-notice {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .output-card {
+    width: 100%;
+    max-width: 620px;
+    margin-top: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .output-card.visible { display: block; }
+
+  .output-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(20px);
+  }
+
+  .output-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .output-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.3);
+    color: var(--accent-violet);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .output-body {
+    padding: 1.5rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+
+  .output-body h1, .output-body h2, .output-body h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 1.25rem 0 0.5rem;
+    line-height: 1.2;
+  }
+
+  .output-body h1 { font-size: 2rem; }
+  .output-body h2 { font-size: 1.2rem; }
+  .output-body h3 { font-size: 1rem; }
+  .output-body p { margin-bottom: 0.85rem; }
+  /* .output-body ul, .output-body ol { padding-left: 1.5rem; margin-bottom: 0.85rem; } */
+  .output-body * { margin-left: 0; }
+  .output-body ul, .output-body ol { padding-left: 1.4rem; margin-bottom: 0.85rem; }
+  .output-body li { margin-left: 0; margin-bottom: 0.3rem; }
+  .output-body li { margin-bottom: 0.3rem; }
+  .output-body strong { color: var(--text-primary); font-weight: 500; }
+
+  .output-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .copy-btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .copy-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .error-msg {
+    width: 100%;
+    max-width: 620px;
+    margin-top: 1rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--radius-sm);
+    color: #fca5a5;
+    font-size: 0.88rem;
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 1.5rem; }
+    .audience-btn { font-size: 0.8rem; }
+  }
+
+  .status-line {
+    font-size: 0.82rem;
+    color: var(--accent-violet);
+    padding: 0.5rem 0 0.25rem 1rem;
+    min-height: 1.4rem;
+    letter-spacing: 0.03em;
+    opacity: 0.85;
+  }
+
+  .status-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #a78bfa;
+    border-right-color: #3b82f6;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  .status-spinner.visible {
+    display: inline-block;
+  }
+
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="page">
+
+  <header>
+    <div class="logo-mark">
+      <div class="logo-icon">✦</div>
+      <span class="logo-text">BriefCraft</span>
+    </div>
+    <h1>AI Brochure Generator</h1>
+  <!-- <p class="tagline">Enter any company URL and get a tailored brochure in seconds.</p> -->
+    <p class="tagline">Researches your website and crafts a tailored brochure in under a minute.</p>
+  </header>
+
+  <div class="card">
+    <p class="section-label">Target Audience</p>
+    <div class="audience-toggle">
+      <button class="audience-btn active" data-audience="clients">
+        <span class="btn-icon">🤝</span>
+        Clients
+      </button>
+      <button class="audience-btn" data-audience="investors">
+        <span class="btn-icon">📈</span>
+        Investors
+      </button>
+      <button class="audience-btn" data-audience="recruits">
+        <span class="btn-icon">🎯</span>
+        Recruits
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="company-name">Company Name</label>
+      <input type="text" id="company-name" placeholder="e.g. Shopify" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="company-url">Company Website URL</label>
+      <input type="url" id="company-url" placeholder="https://example.com" autocomplete="off" />
+    </div>
+
+    <button class="generate-btn" id="generate-btn">
+      <div class="btn-inner">
+        <div class="spinner"></div>
+        <span class="btn-label">Generate Brochure</span>
+      </div>
+    </button>
+
+    <p class="rate-notice">Limited to 3 generations per day per visitor.</p>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <div class="output-card" id="output-card">
+    <div class="output-header">
+      <span class="output-label">Generated Brochure</span>
+      <span class="output-badge" id="audience-badge">Clients</span>
+    </div>
+    <div class="status-line" id="status-line"><span class="status-spinner" id="status-spinner"></span></div>
+    <div class="output-body" id="output-body"></div>
+    <div class="output-footer">
+      <button class="copy-btn" id="copy-btn">
+        ⎘ Copy Text
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const audienceBtns = document.querySelectorAll('.audience-btn');
+  const generateBtn  = document.getElementById('generate-btn');
+  const companyName  = document.getElementById('company-name');
+  const companyUrl   = document.getElementById('company-url');
+  const outputCard   = document.getElementById('output-card');
+  const outputBody   = document.getElementById('output-body');
+  const audienceBadge = document.getElementById('audience-badge');
+  const errorMsg     = document.getElementById('error-msg');
+  const copyBtn      = document.getElementById('copy-btn');
+  const statusLine = document.getElementById('status-line');
+  const statusSpinner = document.getElementById('status-spinner');
+
+  let selectedAudience = 'clients';
+
+  audienceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      audienceBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedAudience = btn.dataset.audience;
+    });
+  });
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.add('visible');
+  }
+
+  function hideError() {
+    errorMsg.classList.remove('visible');
+  }
+
+  function setLoading(loading) {
+    generateBtn.disabled = loading;
+    generateBtn.classList.toggle('generating', loading);
+  }
+
+
+  function renderMarkdown(text) {
+    const lines = text.split('\n');
+    let html = '';
+    let inList = false;
+
+    for (let line of lines) {
+        if (line.startsWith('### ')) {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += `<h3>${line.slice(4)}</h3>`;
+        } else if (line.startsWith('## ')) {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += `<h2>${line.slice(3)}</h2>`;
+        } else if (line.startsWith('# ')) {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += `<h1>${line.slice(2)}</h1>`;
+        } else if (line.startsWith('- ')) {
+            if (!inList) { html += '<ul>'; inList = true; }
+            html += `<li>${applyInline(line.slice(2))}</li>`;
+        } else if (line.trim() === '' || line.trim() === '---') {
+            if (inList) { html += '</ul>'; inList = false; }
+        } else {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += `<p>${applyInline(line)}</p>`;
+        }
+    }
+
+    if (inList) html += '</ul>';
+    return html;
+}
+
+function applyInline(text) {
+    return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+}
+
+
+  generateBtn.addEventListener('click', async () => {
+    hideError();
+
+    const name = companyName.value.trim();
+    const url  = companyUrl.value.trim();
+
+    if (!name) { showError('Please enter a company name.'); return; }
+    if (!url)  { showError('Please enter the company website URL.'); return; }
+
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(url.startsWith('http') ? url : 'https://' + url);
+    } catch {
+        showError('Please enter a valid URL, e.g. https://example.com');
+        return;
+    }
+
+    setLoading(true);
+    outputCard.classList.remove('visible');
+    outputBody.innerHTML = '';
+
+    let fullText = '';
+
+    try {
+        const response = await fetch('/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                company_name: name,
+                url: parsedUrl.href,
+                audience: selectedAudience
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            showError(data.error || 'Something went wrong. Please try again.');
+            return;
+        }
+
+        audienceBadge.textContent =
+            selectedAudience.charAt(0).toUpperCase() + selectedAudience.slice(1);
+        outputCard.classList.add('visible');
+        setLoading(false);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    const messages = chunk.split('\n\n');
+    for (const message of messages) {
+        if (message.startsWith('data: ')) {
+            const text = message.slice(6).replace(/\\n/g, '\n');
+            if (text.startsWith('[STATUS]')) {
+              statusSpinner.classList.add('visible');
+              statusLine.textContent = text.replace('[STATUS] ', '');
+            } else if (text.startsWith('[ERROR]')) {
+                showError(text.replace('[ERROR] ', ''));
+                break;
+              } else {
+                  statusLine.textContent = '';
+                  statusSpinner.classList.remove('visible');
+                  fullText += text;
+                outputBody.innerHTML = renderMarkdown(fullText);
+            }
+        }
+    }
+}
+outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+
+    } catch (err) {
+        showError('Unable to reach the server. Please try again shortly.');
+        setLoading(false);
+    }
+});
+
+copyBtn.addEventListener('click', () => {
+    const text = outputBody.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = '✓ Copied';
+      setTimeout(() => { copyBtn.innerHTML = '⎘ Copy Text'; }, 2000);
+    });
+  });
+
+</script>
+</body>
+</html>
