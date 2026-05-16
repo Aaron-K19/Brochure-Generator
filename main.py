@@ -144,6 +144,7 @@ You are an assistant that analyzes the contents of several relevant pages from a
 and creates a short brochure about the company for prospective customers, investors and recruits.
 Respond in markdown without code blocks.
 Include details of company culture, customers and careers/jobs if you have the information.
+Do not include raw URLs or redundant links — if you reference a website, mention it once as plain text only.
 """
 
 # Or uncomment the lines below for a more humorous brochure - this demonstrates how easy it is to incorporate 'tone':
