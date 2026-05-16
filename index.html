@@ -643,7 +643,10 @@ function applyInline(text) {
         audienceBadge.textContent =
             selectedAudience.charAt(0).toUpperCase() + selectedAudience.slice(1);
         outputCard.classList.add('visible');
-        outputCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+setTimeout(() => {
+    document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}, 50);
+      /*  outputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); */
         setLoading(false);
 
         const reader = response.body.getReader();
