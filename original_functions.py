@@ -64,6 +64,17 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
+
+def fetch_page_and_all_relevant_links(url):
+    contents = fetch_website_contents(url)
+    relevant_links = select_relevant_links(url)
+    result = f"## Landing Page:\n\n{contents}\n## Relevant Links:\n"
+    for link in relevant_links['links']:
+        result += f"\n\n### Link: {link['type']}\n"
+        result += fetch_website_contents(link["url"])
+    return result
+
+
 <script>
 generateBtn.addEventListener('click', async () => {
     hideError();

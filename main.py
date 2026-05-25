@@ -6,7 +6,7 @@ import json
 from dotenv import load_dotenv
 from openai import OpenAI
 from flask import Flask, request, jsonify, send_from_directory, Response, stream_with_context
-
+from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 import requests
 
@@ -111,8 +111,6 @@ Links (some might be relative links):
     return user_prompt
 
 
-# print(get_links_user_prompt("https://edwarddonner.com"))
-
 def select_relevant_links(url):
     response = openai.chat.completions.create(
         model=MODEL,
@@ -125,17 +123,22 @@ def select_relevant_links(url):
     result = response.choices[0].message.content
     links = json.loads(result)
     return links
-    
 
-# select_relevant_links("https://edwarddonner.com")
+
 
 def fetch_page_and_all_relevant_links(url):
     contents = fetch_website_contents(url)
     relevant_links = select_relevant_links(url)
+    
+    urls_to_fetch = [link["url"] for link in relevant_links['links']]
+    
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        results = list(executor.map(fetch_website_contents, urls_to_fetch))
+    
     result = f"## Landing Page:\n\n{contents}\n## Relevant Links:\n"
-    for link in relevant_links['links']:
+    for link, page_content in zip(relevant_links['links'], results):
         result += f"\n\n### Link: {link['type']}\n"
-        result += fetch_website_contents(link["url"])
+        result += page_content
     return result
 
 

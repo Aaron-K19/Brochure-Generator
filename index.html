@@ -103,19 +103,22 @@
 
   h1 {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(2.2rem, 5vw, 3.4rem);
-    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    font-size: 4.2rem;
+    font-weight: 700;
     line-height: 1.1;
    /* letter-spacing: -0.03em; */
+   letter-spacing: 0.02em;
     background: linear-gradient(120deg, #e0e7ff 0%, #a78bfa 45%, #60a5fa 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 0.75rem;
+   /* margin-bottom: 0.75rem; */
+   margin-bottom: 2rem;
   }
 
   .tagline {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--text-secondary);
     font-weight: 300;
     letter-spacing: 0.01em;
@@ -513,7 +516,7 @@
       <span class="output-label">Generated Brochure</span>
       <span class="output-badge" id="audience-badge">Clients</span>
     </div>
-    <div id="scroll-anchor" style="height:0;"></div>
+    <div id="scroll-anchor" style="height:0; margin-top: 5rem;"></div>
     <div class="status-line" id="status-line"><span class="status-spinner" id="status-spinner"></span></div>
     <div class="output-body" id="output-body"></div>
     <div class="output-footer">
@@ -522,7 +525,7 @@
       </button>
     </div>
   </div>
-  <div id="bottom-spacer" style="height: 85vh;"></div>
+  <div id="bottom-spacer" style="height: 100vh;"></div>
 </div>
 
 <script>
