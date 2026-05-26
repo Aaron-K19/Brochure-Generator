@@ -75,7 +75,7 @@ def check_rate_limit(ip_address):
     if usage_tracker[ip_address]["date"] != today:
         usage_tracker[ip_address] = {"count": 0, "date": today}
 
-    if usage_tracker[ip_address]["count"] >= 20:
+    if usage_tracker[ip_address]["count"] >= 10:
         return False  # blocked
 
     usage_tracker[ip_address]["count"] += 1
