@@ -610,7 +610,7 @@ function applyInline(text) {
 
   generateBtn.addEventListener('click', async () => {
     hideError();
-
+    statusLine.style.display = 'block';
     const name = companyName.value.trim();
     const url  = companyUrl.value.trim();
 
@@ -675,7 +675,7 @@ setTimeout(() => {
                 showError(text.replace('[ERROR] ', ''));
                 break;
               } else {
-                  statusLine.textContent = '';
+                statusLine.style.display = 'none';
                   fullText += text;
                 outputBody.innerHTML = renderMarkdown(fullText);
             }
