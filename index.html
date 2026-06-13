@@ -460,6 +460,10 @@
     display: inline-block;
   }
 
+  #bottom-spacer {
+    transition: height 0.7s ease;
+}
+
 </style>
 </head>
 <body>
@@ -685,6 +689,7 @@ setTimeout(() => {
         }
     }
 }
+document.getElementById('bottom-spacer').style.height = '0';
 /* outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); */
 
 /* document.getElementById('bottom-spacer').style.height = '0'; */
