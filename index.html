@@ -535,7 +535,7 @@
       </button>
     </div>
   </div>
-  <div id="bottom-spacer" style="height: 0;"></div>
+  <div id="bottom-spacer" style="height: 100vh;"></div>
 </div>
 
 <script>
@@ -656,11 +656,11 @@ function applyInline(text) {
         audienceBadge.textContent =
             selectedAudience.charAt(0).toUpperCase() + selectedAudience.slice(1);
         outputCard.classList.add('visible');
-      /*  document.getElementById('bottom-spacer').style.height = '100vh';
-        outputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); */
-setTimeout(() => {
-    document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}, 100);
+        document.getElementById('bottom-spacer').style.height = '100vh';
+        outputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+        setTimeout(() => {
+          document.getElementById('scroll-anchor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
       /*  outputCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); */
         setLoading(false);
 
