@@ -463,6 +463,25 @@
     display: inline-block;
   }
 
+  .reset-brochure-btn {
+  width: 100%;
+  max-width: 620px;
+  margin-top: 20px;
+  padding: 0.9rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-sm);
+  color: var(--accent-violet);
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.reset-brochure-btn:hover {
+  background: rgba(139,92,246,0.1);
+}
+
   #bottom-spacer {
     transition: height 0.7s ease;
 }
@@ -538,6 +557,7 @@
       </button>
     </div>
   </div>
+  <button class="reset-brochure-btn" id="reset-brochure-btn" style="display: none;">Generate Another Brochure</button>
   <div id="bottom-spacer"></div>
 </div>
 
@@ -553,6 +573,7 @@
   const copyBtn      = document.getElementById('copy-btn');
   const statusLine = document.getElementById('status-line');
   const statusSpinner = document.getElementById('status-spinner');
+  const resetBrochureBtn = document.getElementById('reset-brochure-btn');
 
   let selectedAudience = 'clients';
 
@@ -614,6 +635,26 @@ function applyInline(text) {
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>');
 }
+
+function resetBrochureApp() {
+  companyName.value = '';
+  companyUrl.value = '';
+  audienceBtns.forEach(b => b.classList.remove('active'));
+  document.querySelector('.audience-btn[data-audience="clients"]').classList.add('active');
+  selectedAudience = 'clients';
+
+  outputCard.classList.remove('visible');
+  outputBody.innerHTML = '';
+  hideError();
+  statusLine.style.display = 'block';
+  statusLine.innerHTML = '';
+
+  resetBrochureBtn.style.display = 'none';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+resetBrochureBtn.addEventListener('click', resetBrochureApp);
 
 
   generateBtn.addEventListener('click', async () => {
@@ -693,6 +734,7 @@ function applyInline(text) {
     }
 }
 document.getElementById('bottom-spacer').style.height = '0';
+resetBrochureBtn.style.display = 'block';
 /* outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); */
 
 /* document.getElementById('bottom-spacer').style.height = '0'; */
