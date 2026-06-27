@@ -72,6 +72,7 @@
   header {
     text-align: center;
     margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
     animation: fadeUp 0.7s ease both;
   }
 
@@ -90,15 +91,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 24px;
   }
 
   .logo-text {
     font-family: 'Syne', sans-serif;
-    font-size: 1.3rem;
+  /*  font-size: 1.3rem; */
     font-weight: 700;
-    letter-spacing: -0.01em;
+  /*  letter-spacing: -0.01em; */
     color: var(--text-primary);
+    letter-spacing: 0.03rem;
+    font-size: 1.5rem;
+  /*  color: var(--text-primary); */
+    color: #caa6ff;
   }
 
   h1 {
@@ -555,6 +560,9 @@
       <button class="copy-btn" id="copy-btn">
         ⎘ Copy Text
       </button>
+      <a class="copy-btn" id="download-btn" download="brochure.txt">
+        ⬇ Download
+      </a>
     </div>
   </div>
   <button class="reset-brochure-btn" id="reset-brochure-btn" style="display: none;">Generate Another Brochure</button>
@@ -571,6 +579,7 @@
   const audienceBadge = document.getElementById('audience-badge');
   const errorMsg     = document.getElementById('error-msg');
   const copyBtn      = document.getElementById('copy-btn');
+  const downloadBtn = document.getElementById('download-btn');
   const statusLine = document.getElementById('status-line');
   const statusSpinner = document.getElementById('status-spinner');
   const resetBrochureBtn = document.getElementById('reset-brochure-btn');
@@ -753,6 +762,15 @@ copyBtn.addEventListener('click', () => {
       setTimeout(() => { copyBtn.innerHTML = '⎘ Copy Text'; }, 2000);
     });
   });
+
+  downloadBtn.addEventListener('click', () => {
+  const text = outputBody.innerText;
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  downloadBtn.href = url;
+  // Revoke the temporary URL shortly after the download starts, to free memory
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
 
 </script>
 </body>
